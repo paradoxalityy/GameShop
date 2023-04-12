@@ -1,6 +1,7 @@
 ﻿using GameShop.Web.Data;
 using GameShop.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace GameShop.Web.Controllers
 {
@@ -24,6 +25,19 @@ namespace GameShop.Web.Controllers
             return View();
         }
 
-        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Category category)
+        {
+            // Server side validation
+            if (ModelState.IsValid)
+            {
+                _db.Categories.Add(category);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View(category);
+        }
     }
 }

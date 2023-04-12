@@ -14,8 +14,16 @@ namespace GameShop.Web.Controllers
 
         public IActionResult Index()
         {
-            IEnumerable<Category> categories = _db.Categories.ToList();
-            return View(categories);
+            IEnumerable<Category> gameCategories = _db.Categories.ToList();
+            return View(gameCategories);
         }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        
     }
 }

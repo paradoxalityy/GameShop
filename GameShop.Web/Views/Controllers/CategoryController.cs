@@ -62,5 +62,12 @@ namespace GameShop.Web.Controllers
 
             return View(categoryToEdit);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Category category)
+        {
+            return View();
+        }
     }
 }

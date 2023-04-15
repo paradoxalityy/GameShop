@@ -81,5 +81,23 @@ namespace GameShop.Web.Controllers
 
             return View(category);
         }
+
+        [HttpGet]
+        public IActionResult Delete(int? id)
+        {
+            if(id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            var categoryToDelete = _db.Categories.FirstOrDefault(c => c.Id == id);
+            
+            if(categoryToDelete == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryToDelete);
+        }
     }
 }

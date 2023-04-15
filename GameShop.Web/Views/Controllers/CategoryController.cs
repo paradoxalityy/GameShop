@@ -44,5 +44,23 @@ namespace GameShop.Web.Controllers
 
             return View(category);
         }
+
+        [HttpGet]
+        public IActionResult Edit(int? id)
+        {
+            if(id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            var categoryToEdit = _db.Categories.FirstOrDefault(c => c.Id == id);
+
+            if(categoryToEdit == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryToEdit);
+        }
     }
 }

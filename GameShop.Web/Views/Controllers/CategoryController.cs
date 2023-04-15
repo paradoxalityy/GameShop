@@ -99,5 +99,27 @@ namespace GameShop.Web.Controllers
 
             return View(categoryToDelete);
         }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePOST(int? id)
+        {
+            if(id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            var categoryToDelete = _db.Categories.FirstOrDefault(c => c.Id == id);
+
+            if(categoryToDelete == null)
+            {
+                return NotFound();
+            }
+
+            _db.Categories.Remove(categoryToDelete);
+            _db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
     }
 }

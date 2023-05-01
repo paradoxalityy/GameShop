@@ -1,3 +1,5 @@
+using GameShop.Data.Repository;
+using GameShop.Data.Repository.IRepository;
 using GameShop.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 

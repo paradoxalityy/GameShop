@@ -1,4 +1,5 @@
-﻿using GameShop.DataAccess.Data;
+﻿using GameShop.Data.Repository.IRepository;
+using GameShop.DataAccess.Data;
 using GameShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -7,16 +8,16 @@ namespace GameShop.Web.Controllers
 {
     public class CategoryController : Controller    
     {
-        private readonly ApplicationDbContext _db;
-        public CategoryController(ApplicationDbContext db)
+        private readonly ICategoryRepository _categoryRepository;
+        public CategoryController(ICategoryRepository categoryRepository)
         {
-            _db = db;
+            _categoryRepository = categoryRepository;
         }
 
         public IActionResult Index()
         {
-            IEnumerable<Category> gameCategories = _db.Categories.ToList();
-            return View(gameCategories);
+            IEnumerable<Category> categories = _categoryRepository.GetAll();
+            return View(categories);
         }
 
         [HttpGet]
@@ -37,8 +38,8 @@ namespace GameShop.Web.Controllers
             // Server side validation
             if (ModelState.IsValid)
             {
-                _db.Categories.Add(category);
-                _db.SaveChanges();
+                _categoryRepository.Add(category);
+                _categoryRepository.Save();
                 TempData["Success"] = "Category created successfully.";
                 return RedirectToAction("Index");
             }
@@ -54,7 +55,7 @@ namespace GameShop.Web.Controllers
                 return NotFound();
             }
 
-            var categoryToEdit = _db.Categories.FirstOrDefault(c => c.Id == id);
+            var categoryToEdit = _categoryRepository.GetFirstOrDefault(c => c.Id == id);
 
             if(categoryToEdit == null)
             {
@@ -75,8 +76,8 @@ namespace GameShop.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(category);
-                _db.SaveChanges();
+                _categoryRepository.Update(category);
+                _categoryRepository.Save();
                 TempData["Success"] = "Category Edited Successfully.";
                 return RedirectToAction("Index");
             }
@@ -92,7 +93,7 @@ namespace GameShop.Web.Controllers
                 return NotFound();
             }
 
-            var categoryToDelete = _db.Categories.FirstOrDefault(c => c.Id == id);
+            var categoryToDelete = _categoryRepository.GetFirstOrDefault(c => c.Id == id);
             
             if(categoryToDelete == null)
             {
@@ -111,15 +112,15 @@ namespace GameShop.Web.Controllers
                 return NotFound();
             }
 
-            var categoryToDelete = _db.Categories.FirstOrDefault(c => c.Id == id);
+            var categoryToDelete = _categoryRepository.GetFirstOrDefault(c => c.Id == id);
 
             if(categoryToDelete == null)
             {
                 return NotFound();
             }
 
-            _db.Categories.Remove(categoryToDelete);
-            _db.SaveChanges();
+            _categoryRepository.Remove(categoryToDelete);
+            _categoryRepository.Save();
 
             TempData["Success"] = "Category Deleted Successfully.";
             return RedirectToAction("Index");

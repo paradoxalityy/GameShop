@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace GameShop.Web.Controllers
 {
-    public class CategoryController : Controller
+    public class CategoryController : Controller    
     {
         private readonly ApplicationDbContext _db;
         public CategoryController(ApplicationDbContext db)

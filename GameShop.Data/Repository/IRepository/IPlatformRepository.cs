@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameShop.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace GameShop.Data.Repository.IRepository
 {
-    public interface IUnitOfWork
+    public interface IPlatformRepository : IRepository<Platform>
     {
-        ICategoryRepository Category { get; }
-        IPlatformRepository Platform { get; }
+        void Update(Platform obj);
         void Save();
     }
 }

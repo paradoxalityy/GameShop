@@ -1,5 +1,6 @@
 ﻿using GameShop.Data.Repository.IRepository;
 using GameShop.DataAccess.Data;
+using GameShop.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,23 +9,22 @@ using System.Threading.Tasks;
 
 namespace GameShop.Data.Repository
 {
-    public class UnitOfWork : IUnitOfWork
+    public class PlatformRepository : Repository<Platform>, IPlatformRepository
     {
         private readonly ApplicationDbContext _db;
-        public ICategoryRepository Category { get; private set; }
-
-        public IPlatformRepository Platform { get; private set; }
-
-        public UnitOfWork(ApplicationDbContext db)
+        public PlatformRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
-            Category = new CategoryRepository(_db);
-            Platform = new PlatformRepository(_db);       
         }
 
         public void Save()
         {
             _db.SaveChanges();
+        }
+
+        public void Update(Platform obj)
+        {
+            _db.Update(obj);
         }
     }
 }

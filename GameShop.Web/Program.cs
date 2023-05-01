@@ -1,4 +1,4 @@
-using GameShop.Web.Data;
+using GameShop.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

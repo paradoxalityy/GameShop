@@ -1,5 +1,5 @@
-﻿using GameShop.Web.Data;
-using GameShop.Web.Models;
+﻿using GameShop.DataAccess.Data;
+using GameShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 

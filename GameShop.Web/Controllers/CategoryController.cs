@@ -8,15 +8,15 @@ namespace GameShop.Web.Controllers
 {
     public class CategoryController : Controller    
     {
-        private readonly ICategoryRepository _categoryRepository;
-        public CategoryController(ICategoryRepository categoryRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            IEnumerable<Category> categories = _categoryRepository.GetAll();
+            IEnumerable<Category> categories = _unitOfWork.Category.GetAll();
             return View(categories);
         }
 
@@ -38,8 +38,8 @@ namespace GameShop.Web.Controllers
             // Server side validation
             if (ModelState.IsValid)
             {
-                _categoryRepository.Add(category);
-                _categoryRepository.Save();
+                _unitOfWork.Category.Add(category);
+                _unitOfWork.Save();
                 TempData["Success"] = "Category created successfully.";
                 return RedirectToAction("Index");
             }
@@ -55,7 +55,7 @@ namespace GameShop.Web.Controllers
                 return NotFound();
             }
 
-            var categoryToEdit = _categoryRepository.GetFirstOrDefault(c => c.Id == id);
+            var categoryToEdit = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
 
             if(categoryToEdit == null)
             {
@@ -76,8 +76,8 @@ namespace GameShop.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                _categoryRepository.Update(category);
-                _categoryRepository.Save();
+                _unitOfWork.Category.Update(category);
+                _unitOfWork.Save();
                 TempData["Success"] = "Category Edited Successfully.";
                 return RedirectToAction("Index");
             }
@@ -93,7 +93,7 @@ namespace GameShop.Web.Controllers
                 return NotFound();
             }
 
-            var categoryToDelete = _categoryRepository.GetFirstOrDefault(c => c.Id == id);
+            var categoryToDelete = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
             
             if(categoryToDelete == null)
             {
@@ -112,15 +112,15 @@ namespace GameShop.Web.Controllers
                 return NotFound();
             }
 
-            var categoryToDelete = _categoryRepository.GetFirstOrDefault(c => c.Id == id);
+            var categoryToDelete = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
 
             if(categoryToDelete == null)
             {
                 return NotFound();
             }
 
-            _categoryRepository.Remove(categoryToDelete);
-            _categoryRepository.Save();
+            _unitOfWork.Category.Remove(categoryToDelete);
+            _unitOfWork.Save();
 
             TempData["Success"] = "Category Deleted Successfully.";
             return RedirectToAction("Index");

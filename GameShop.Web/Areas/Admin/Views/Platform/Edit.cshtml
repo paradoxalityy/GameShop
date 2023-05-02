@@ -1,0 +1,28 @@
+﻿@model Platform
+
+<form method="post" asp-controller="Platform" asp-action="Edit">
+    <div class="p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">Edit Platform</h2>
+            <hr />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <button type="submit" class="btn btn-primary" style="width:150px">Update</button>
+            </div>
+            <div class="col-6 text-end">
+                <a asp-controller="Platform" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
+            </div>
+        </div>
+    </div>
+</form> 
+
+@*Client side validation*@
+@section Scripts{
+    <section name="_ValidationScriptsPartial"></section>
+}

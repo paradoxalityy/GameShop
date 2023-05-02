@@ -22,7 +22,21 @@ namespace GameShop.Web.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View();  
+        }
+
+        [HttpPost]
+        public IActionResult Create(Platform platform)
+        {
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.Platform.Add(platform);
+                _unitOfWork.Save();
+                TempData["Success"] = "Platform created successfully.";
+                return RedirectToAction("Index");
+            }
+
+            return View(platform);
         }
     }
 }

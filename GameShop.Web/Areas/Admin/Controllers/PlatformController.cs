@@ -18,5 +18,11 @@ namespace GameShop.Web.Areas.Admin.Controllers
             IEnumerable<Platform> platforms = _unitOfWork.Platform.GetAll();
             return View(platforms);
         }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }

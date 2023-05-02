@@ -4,9 +4,9 @@ using GameShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace GameShop.Web.Controllers
+namespace GameShop.Web.Areas.Admin.Controllers
 {
-    public class CategoryController : Controller    
+    public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
         public CategoryController(IUnitOfWork unitOfWork)
@@ -30,7 +30,7 @@ namespace GameShop.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Category category)
         {
-            if(category.Name == category.DisplayOrder.ToString())
+            if (category.Name == category.DisplayOrder.ToString())
             {
                 ModelState.AddModelError("Name", "The Name cannot exactly match the Display Order.");
             }
@@ -50,14 +50,14 @@ namespace GameShop.Web.Controllers
         [HttpGet]
         public IActionResult Edit(int? id)
         {
-            if(id == null || id == 0)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
 
             var categoryToEdit = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
 
-            if(categoryToEdit == null)
+            if (categoryToEdit == null)
             {
                 return NotFound();
             }
@@ -69,7 +69,7 @@ namespace GameShop.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Category category)
         {
-            if(category.Name == category.DisplayOrder.ToString())
+            if (category.Name == category.DisplayOrder.ToString())
             {
                 ModelState.AddModelError("Name", "The Name cannot exactly match the Display Order.");
             }
@@ -88,14 +88,14 @@ namespace GameShop.Web.Controllers
         [HttpGet]
         public IActionResult Delete(int? id)
         {
-            if(id == null || id == 0)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
 
             var categoryToDelete = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
-            
-            if(categoryToDelete == null)
+
+            if (categoryToDelete == null)
             {
                 return NotFound();
             }
@@ -107,14 +107,14 @@ namespace GameShop.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeletePOST(int? id)
         {
-            if(id == null || id == 0)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
 
             var categoryToDelete = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
 
-            if(categoryToDelete == null)
+            if (categoryToDelete == null)
             {
                 return NotFound();
             }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -19,6 +20,7 @@ namespace GameShop.Models
         public string Developer { get; set; } // The name of the company or individual that developed the game.
         [Required]
         public string Publisher { get; set; } // The name of the company that published the game.
+        [ValidateNever]
         public string ImageUrl { get; set; }
         [Required]
         public DateTime ReleaseDate { get; set; }
@@ -35,10 +37,12 @@ namespace GameShop.Models
         [Required]
         public int CategoryId { get; set; }
         [ForeignKey(nameof(CategoryId))]
+        [ValidateNever]
         public Category Category { get; set; }
         [Required]
         public int PlatformId { get; set; }
         [ForeignKey(nameof(PlatformId))]
+        [ValidateNever]
         public Platform Platform { get; set; }
     }
 }

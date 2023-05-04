@@ -3,6 +3,7 @@ using GameShop.Models;
 using GameShop.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Runtime.Remoting;
 
 namespace GameShop.Web.Areas.Admin.Controllers
 {
@@ -10,9 +11,11 @@ namespace GameShop.Web.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ProductController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -51,6 +54,34 @@ namespace GameShop.Web.Areas.Admin.Controllers
             }
 
             return View(productVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Upsert(ProductVM obj, IFormFile? formFile)
+        {
+            if (ModelState.IsValid)
+            {
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (formFile != null)
+                {
+                    string fileName = Guid.NewGuid().ToString();
+                    var uploads = Path.Combine(wwwRootPath, @"images\products");
+                    var fileExtension = Path.GetExtension(formFile.FileName);
+
+                    using(var fileStream = new FileStream(Path.Combine(uploads, fileName + fileExtension), FileMode.Create))
+                    {
+                        formFile.CopyTo(fileStream);
+                    }
+
+                    obj.Product.ImageUrl = @"images\products" + fileName + fileExtension;
+                }
+            }
+
+            _unitOfWork.Product.Add(obj.Product);
+            _unitOfWork.Save();
+            TempData["Success"] = "Product created successfully.";
+            return RedirectToAction("Index");
         }
     }
 }

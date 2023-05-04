@@ -76,12 +76,14 @@ namespace GameShop.Web.Areas.Admin.Controllers
 
                     obj.Product.ImageUrl = @"images\products" + fileName + fileExtension;
                 }
+
+                _unitOfWork.Product.Add(obj.Product);
+                _unitOfWork.Save();
+                TempData["Success"] = "Product created successfully.";
+                return RedirectToAction("Index");
             }
 
-            _unitOfWork.Product.Add(obj.Product);
-            _unitOfWork.Save();
-            TempData["Success"] = "Product created successfully.";
-            return RedirectToAction("Index");
+            return View(obj);
         }
     }
 }

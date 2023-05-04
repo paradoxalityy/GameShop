@@ -1,5 +1,6 @@
 ﻿using GameShop.Data.Repository.IRepository;
 using GameShop.Models;
+using GameShop.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -23,34 +24,33 @@ namespace GameShop.Web.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Upsert(int? id)
         {
-            Product product = new Product();
-
-            IEnumerable<SelectListItem> productCategories = _unitOfWork.Category.GetAll().Select(
-                c => new SelectListItem
-                {
-                    Text = c.Name,
-                    Value = c.Id.ToString()
-                });
-            IEnumerable<SelectListItem> productPlatforms = _unitOfWork.Platform.GetAll().Select(
-                p => new SelectListItem
-                {
-                    Text = p.Name,
-                    Value = p.Id.ToString()
-                });
+            ProductVM productVM = new ProductVM
+            {
+                Product = new Product(),
+                CategoryList = _unitOfWork.Category.GetAll().Select(
+                    c => new SelectListItem
+                    {
+                        Text = c.Name,
+                        Value = c.Id.ToString()
+                    }),
+                PlatformList = _unitOfWork.Platform.GetAll().Select(
+                    p => new SelectListItem
+                    {
+                        Text = p.Name,
+                        Value = p.Id.ToString()
+                    })
+            };     
 
             if(id == null || id == 0)
             {
-                // Using two ways of passing data to the view
-                ViewBag.productCategories = productCategories;
-                ViewData["productPlatforms"] = productPlatforms;
-                return View(product);
+                return View(productVM);
             }
             else
             {
                 // Updating existing product
             }
 
-            return View(product);
+            return View(productVM);
         }
     }
 }

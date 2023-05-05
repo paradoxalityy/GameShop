@@ -62,16 +62,25 @@
         </div>
         <div class="mb-3 col-6">
             <label asp-for="Product.ImageUrl"></label>
-            <input type="file" id="uploadFileBox" name="file" class="form-control" />
+            <input asp-for="Product.ImageUrl" type="file" id="uploadFileBox" name="formFile" class="form-control" />
         </div>
         <div class="mb-3 col-6">
             <textarea asp-for="Product.Description" class="form-control"></textarea>
             <span asp-validation-for="Product.Description" class="text-danger"></span>
         </div>
         <div class="row">
-            <div class="col-6">
-                <button type="submit" class="btn btn-primary" style="width:150px">Update</button>
-            </div>
+            @if(Model.Product.Id != 0)
+            {
+                <div class="col-6">
+                    <button type="submit" class="btn btn-primary" style="width:150px">Update</button>
+                </div>
+            }
+            else
+            {
+                <div class="col-6">
+                    <button type="submit" onclick="return ValidateInput()" class="btn btn-primary" style="width:150px">Create</button>
+                </div>
+            }
             <div class="col-6 text-end">
                 <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
             </div>
@@ -81,5 +90,18 @@
 
 
 @section Scripts{
-    <partial name="_ValidationScriptsPartial" />
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        function ValidateInput(){
+            if(document.getElementById("uploadFileBox").value==""){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing file!',
+                    text: 'You have to upload a file!'
+                })
+            }
+        }
+    </script>
 }

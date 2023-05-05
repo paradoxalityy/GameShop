@@ -29,7 +29,10 @@ namespace GameShop.Web.Areas.Admin.Controllers
         {
             ProductVM productVM = new ProductVM
             {
-                Product = new Product(),
+                Product = new Product 
+                {
+                    ReleaseDate = DateTime.Now 
+                },
                 CategoryList = _unitOfWork.Category.GetAll().Select(
                     c => new SelectListItem
                     {
@@ -74,7 +77,7 @@ namespace GameShop.Web.Areas.Admin.Controllers
                         formFile.CopyTo(fileStream);
                     }
 
-                    obj.Product.ImageUrl = @"images\products" + fileName + fileExtension;
+                    obj.Product.ImageUrl = @"images\products\" + fileName + fileExtension;
                 }
 
                 _unitOfWork.Product.Add(obj.Product);

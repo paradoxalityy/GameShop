@@ -53,7 +53,7 @@ namespace GameShop.Web.Areas.Admin.Controllers
             }
             else
             {
-                // Updating existing product
+                // TODO: Updating existing product
             }
 
             return View(productVM);

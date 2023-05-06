@@ -3,6 +3,7 @@ using GameShop.Models;
 using GameShop.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Runtime.Remoting;
 
 namespace GameShop.Web.Areas.Admin.Controllers
@@ -88,5 +89,15 @@ namespace GameShop.Web.Areas.Admin.Controllers
 
             return View(obj);
         }
+
+        #region API CALLS
+        // Api endpoint for DataTable
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var productsList = _unitOfWork.Product.GetAll(includeProperties: "Category,Platform");
+            return Json( new { data = productsList });
+        }
+        #endregion
     }
 }

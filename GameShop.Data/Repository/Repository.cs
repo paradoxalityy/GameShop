@@ -26,9 +26,9 @@ namespace GameShop.Data.Repository
             query = query.Where(filter);
             if(includeProperties != null)
             {
-                foreach(var includeProp in includeProperties.Split(new char[','], StringSplitOptions.RemoveEmptyEntries))
+                foreach(var includeProp in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query.Include(includeProp);
+                    query = query.Include(includeProp);
                 }
             }
             return query.FirstOrDefault();
@@ -39,9 +39,9 @@ namespace GameShop.Data.Repository
             IQueryable<T> query = _dbSet;
             if(includeProperties != null)
             {
-                foreach (var includeProp in includeProperties.Split(new char[','], StringSplitOptions.RemoveEmptyEntries)
+                foreach (var includeProp in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query.Include(includeProp);
+                    query = query.Include(includeProp);
                 }
             }
             return query.ToList();

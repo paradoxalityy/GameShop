@@ -54,7 +54,7 @@ namespace GameShop.Web.Areas.Admin.Controllers
             }
             else
             {
-                // TODO: Updating existing product
+                productVM.Product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id);
             }
 
             return View(productVM);

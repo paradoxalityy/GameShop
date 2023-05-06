@@ -75,7 +75,7 @@ namespace GameShop.Web.Areas.Admin.Controllers
 
                     if(obj.Product.ImageUrl != null)
                     {
-                        var oldImagePath = Path.Combine(wwwRootPath, obj.Product.ImageUrl.Trim('\\'));
+                        var oldImagePath = Path.Combine(wwwRootPath, obj.Product.ImageUrl.TrimStart('\\'));
                         if(System.IO.File.Exists(oldImagePath))
                         {
                             System.IO.File.Delete(oldImagePath);
@@ -127,7 +127,7 @@ namespace GameShop.Web.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Error while deleting product" });
             }
 
-            var productToDeleteImagePath = Path.Combine(_webHostEnvironment.WebRootPath, productToDelete.ImageUrl.Trim('\\'));
+            var productToDeleteImagePath = Path.Combine(_webHostEnvironment.WebRootPath, productToDelete.ImageUrl.TrimStart('\\'));
             if (System.IO.File.Exists(productToDeleteImagePath))
             {
                 System.IO.File.Delete(productToDeleteImagePath);

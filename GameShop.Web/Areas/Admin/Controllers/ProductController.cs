@@ -116,6 +116,27 @@ namespace GameShop.Web.Areas.Admin.Controllers
             var productsList = _unitOfWork.Product.GetAll(includeProperties: "Category,Platform");
             return Json( new { data = productsList });
         }
+
+        [HttpDelete]
+        public IActionResult Delete(int? id)
+        {
+            var productToDelete = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id);
+
+            if(productToDelete == null)
+            {
+                return Json(new { success = false, message = "Error while deleting product" });
+            }
+
+            var productToDeleteImagePath = Path.Combine(_webHostEnvironment.WebRootPath, productToDelete.ImageUrl.Trim('\\'));
+            if (System.IO.File.Exists(productToDeleteImagePath))
+            {
+                System.IO.File.Delete(productToDeleteImagePath);
+            }
+
+            _unitOfWork.Product.Remove(productToDelete);
+            _unitOfWork.Save();
+            return Json(new { success = true, message = "Product deleted successfully" });
+        }
         #endregion
     }
 }

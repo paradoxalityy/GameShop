@@ -87,7 +87,7 @@ namespace GameShop.Web.Areas.Admin.Controllers
                         formFile.CopyTo(fileStream);
                     }
 
-                    obj.Product.ImageUrl = @"images\products\" + fileName + fileExtension;
+                    obj.Product.ImageUrl = @"\images\products\" + fileName + fileExtension;
                 }
 
                 if(obj.Product.Id == 0)

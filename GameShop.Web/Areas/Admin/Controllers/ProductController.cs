@@ -73,6 +73,15 @@ namespace GameShop.Web.Areas.Admin.Controllers
                     var uploads = Path.Combine(wwwRootPath, @"images\products");
                     var fileExtension = Path.GetExtension(formFile.FileName);
 
+                    if(obj.Product.ImageUrl != null)
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, obj.Product.ImageUrl.Trim('\\'));
+                        if(System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
                     using(var fileStream = new FileStream(Path.Combine(uploads, fileName + fileExtension), FileMode.Create))
                     {
                         formFile.CopyTo(fileStream);
@@ -81,9 +90,18 @@ namespace GameShop.Web.Areas.Admin.Controllers
                     obj.Product.ImageUrl = @"images\products\" + fileName + fileExtension;
                 }
 
-                _unitOfWork.Product.Add(obj.Product);
+                if(obj.Product.Id == 0)
+                {
+                    _unitOfWork.Product.Add(obj.Product);
+                    TempData["Success"] = "Product created successfully."; 
+                }
+                else
+                {
+                    _unitOfWork.Product.Update(obj.Product);
+                    TempData["Success"] = "Product updated successfully.";
+                }
+
                 _unitOfWork.Save();
-                TempData["Success"] = "Product created successfully.";
                 return RedirectToAction("Index");
             }
 

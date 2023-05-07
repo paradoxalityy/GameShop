@@ -1,4 +1,5 @@
-﻿using GameShop.Models;
+﻿using GameShop.Data.Repository.IRepository;
+using GameShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -8,15 +9,18 @@ namespace GameShop.Web.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            return View();
+            IEnumerable<Product> avaiableProducts = _unitOfWork.Product.GetAll(includeProperties: "Category,Platform");
+            return View(avaiableProducts);
         }
 
         public IActionResult Privacy()

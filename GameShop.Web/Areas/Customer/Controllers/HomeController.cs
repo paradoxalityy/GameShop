@@ -23,6 +23,18 @@ namespace GameShop.Web.Areas.Customer.Controllers
             return View(avaiableProducts);
         }
 
+        [HttpGet]
+        public IActionResult Details(int id)
+        {
+            ShoppingCart shoppingCart = new ShoppingCart
+            {
+                Product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id, includeProperties: "Category,Platform"),
+                Count = 1
+            };
+
+            return View(shoppingCart);
+        }
+
         public IActionResult Privacy()
         {
             return View();

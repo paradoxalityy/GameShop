@@ -14,6 +14,7 @@ namespace GameShop.Data.Repository
         public ICategoryRepository Category { get; private set; }
         public IPlatformRepository Platform { get; private set; }
         public IProductRepository Product { get; private set; }
+        public ICompanyRepository Company { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -21,6 +22,7 @@ namespace GameShop.Data.Repository
             Category = new CategoryRepository(_db);
             Platform = new PlatformRepository(_db);
             Product = new ProductRepository(_db);
+            Company = new CompanyRepository(_db);
         }
 
         public void Save()

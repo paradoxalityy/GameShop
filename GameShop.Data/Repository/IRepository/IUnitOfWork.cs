@@ -11,6 +11,7 @@ namespace GameShop.Data.Repository.IRepository
         ICategoryRepository Category { get; }
         IPlatformRepository Platform { get; }
         IProductRepository Product { get; }
+        ICompanyRepository Company { get; }
         void Save();
     }
 }

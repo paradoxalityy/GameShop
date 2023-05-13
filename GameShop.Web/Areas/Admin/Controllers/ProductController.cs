@@ -137,6 +137,6 @@ namespace GameShop.Web.Areas.Admin.Controllers
             _unitOfWork.Save();
             return Json(new { success = true, message = "Product deleted successfully" });
         }
-        #endregion
+        #endregion API CALLS
     }
 }

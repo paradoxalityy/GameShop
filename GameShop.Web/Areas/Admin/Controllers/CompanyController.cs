@@ -37,6 +37,31 @@ namespace GameShop.Web.Areas.Admin.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult Upsert(Company obj)
+        {
+            if (ModelState.IsValid)
+            {
+                if (obj.Id == 0)
+                {
+                    // Creating new Company
+                    _unitOfWork.Company.Add(obj);
+                    TempData["Success"] = "Company created successfully";
+                }
+                else
+                {
+                    // Updating existing company
+                    _unitOfWork.Company.Update(obj);
+                    TempData["Success"] = "Company updated successfully";
+                }
+                
+                _unitOfWork.Save();
+                return RedirectToAction("Index");
+            }
+
+            return View(obj);
+        }
+
         #region API CALLS
         [HttpGet]
         public IActionResult GetAll()

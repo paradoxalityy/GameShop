@@ -17,7 +17,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
@@ -117,6 +119,10 @@ namespace GameShop.Web.Areas.Identity.Pages.Account
             public string? PostalCode { get; set; }
             [Display(Name = "Phone Number")]
             public string? PhoneNumber { get; set; }
+            public string? Role { get; set; }
+
+            [ValidateNever]
+            public IEnumerable<SelectListItem> RolesList { get; set; }
         }
 
 
@@ -133,6 +139,15 @@ namespace GameShop.Web.Areas.Identity.Pages.Account
 
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            Input = new InputModel()
+            {
+                RolesList = _roleManager.Roles.Select(r => r.Name).Select(name => new SelectListItem
+                {
+                    Text = name,
+                    Value = name
+                })
+            };
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)

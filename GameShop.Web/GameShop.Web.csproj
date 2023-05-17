@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GameShop.Data\GameShop.Data.csproj" />
+    <ProjectReference Include="..\GameShop.Data\GameShop.DataAccess.csproj" />
     <ProjectReference Include="..\GameShop.Models\GameShop.Models.csproj" />
     <ProjectReference Include="..\GameShop.Utility\GameShop.Utility.csproj" />
   </ItemGroup>

@@ -12,7 +12,6 @@ namespace GameShop.Data.Repository
     {
         private readonly ApplicationDbContext _db;
         public ICategoryRepository Category { get; private set; }
-
         public IPlatformRepository Platform { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameShop.DataAccess.Repository.IRepository;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ namespace GameShop.Data.Repository.IRepository
         IPlatformRepository Platform { get; }
         IProductRepository Product { get; }
         ICompanyRepository Company { get; }
+        IApplicationUserRepository ApplicationUser { get; }
+        IShoppingCartRepository ShoppingCart { get; }
         void Save();
     }
 }

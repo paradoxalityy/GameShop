@@ -19,7 +19,7 @@ namespace GameShop.Models
         [ValidateNever]
         [ForeignKey(nameof(ProductId))]
         public Product Product { get; set; }
-        public int ApplicationUserId { get; set; }
+        public string ApplicationUserId { get; set; }
         [ValidateNever]
         [ForeignKey(nameof(ApplicationUserId))]
         public ApplicationUser ApplicationUser { get; set; }

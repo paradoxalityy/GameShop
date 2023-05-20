@@ -18,18 +18,32 @@ namespace GameShop.Data.Repository
         {
             _db = db;
             _dbSet = _db.Set<T>();
-        }   
+        }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter)
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = _dbSet;
             query = query.Where(filter);
+            if(includeProperties != null)
+            {
+                foreach(var includeProp in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
             return query.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(string? includeProperties = null)
         {
             IQueryable<T> query = _dbSet;
+            if(includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
             return query.ToList();
         }
 

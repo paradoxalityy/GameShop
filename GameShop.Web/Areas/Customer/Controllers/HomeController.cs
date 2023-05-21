@@ -1,7 +1,9 @@
 ﻿using GameShop.Data.Repository.IRepository;
 using GameShop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace GameShop.Web.Areas.Customer.Controllers
 {
@@ -24,16 +26,32 @@ namespace GameShop.Web.Areas.Customer.Controllers
         }
 
         [HttpGet]
-        public IActionResult Details(int id)
+        public IActionResult Details(int productId)
         {
             ShoppingCart shoppingCart = new ShoppingCart
             {
-                Product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id, includeProperties: "Category,Platform"),
+                Product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == productId, includeProperties: "Category,Platform"),
+                ProductId = productId,
                 Count = 1
             };
 
             return View(shoppingCart);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public IActionResult Details(ShoppingCart shoppingCart)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            shoppingCart.ApplicationUserId = claim.Value;
+
+            _unitOfWork.ShoppingCart.Add(shoppingCart);
+            _unitOfWork.Save();
+
+            return RedirectToAction("Index");
+        } 
 
         public IActionResult Privacy()
         {

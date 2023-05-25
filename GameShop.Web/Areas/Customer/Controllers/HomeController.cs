@@ -47,9 +47,19 @@ namespace GameShop.Web.Areas.Customer.Controllers
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
             shoppingCart.ApplicationUserId = claim.Value;
 
-            _unitOfWork.ShoppingCart.Add(shoppingCart);
-            _unitOfWork.Save();
+            var shoppingCartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(
+                c => c.ApplicationUserId == claim.Value && c.ProductId == shoppingCart.ProductId);
 
+            if (shoppingCartFromDb != null)
+            {
+                _unitOfWork.ShoppingCart.IncrementCount(shoppingCart, shoppingCart.Count);
+            }
+            else
+            {
+                _unitOfWork.ShoppingCart.Add(shoppingCart);
+            }
+
+            _unitOfWork.Save();
             return RedirectToAction("Index");
         } 
 

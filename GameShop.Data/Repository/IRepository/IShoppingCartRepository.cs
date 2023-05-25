@@ -10,6 +10,7 @@ namespace GameShop.DataAccess.Repository.IRepository
 {
     public interface IShoppingCartRepository : IRepository<ShoppingCart>
     {
-        public void Update(ShoppingCart obj);
+        public int IncrementCount(ShoppingCart shoppingCart, int count);
+        public int DecrementCount(ShoppingCart shoppingCart, int count);
     }
 }

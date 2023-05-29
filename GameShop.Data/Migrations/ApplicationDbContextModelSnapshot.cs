@@ -42,7 +42,7 @@ namespace GameShop.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("GameShop.Models.Company", b =>
@@ -74,7 +74,7 @@ namespace GameShop.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("GameShop.Models.Platform", b =>
@@ -92,7 +92,7 @@ namespace GameShop.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Platforms");
+                    b.ToTable("Platforms", (string)null);
                 });
 
             modelBuilder.Entity("GameShop.Models.Product", b =>
@@ -150,7 +150,7 @@ namespace GameShop.DataAccess.Migrations
 
                     b.HasIndex("PlatformId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("GameShop.Models.ShoppingCart", b =>
@@ -177,7 +177,7 @@ namespace GameShop.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ShoppingCarts");
+                    b.ToTable("ShoppingCarts", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

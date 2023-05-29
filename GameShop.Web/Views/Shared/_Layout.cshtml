@@ -35,6 +35,14 @@
                             </div>
                         </li>
                     </ul>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="text-end">
+                            <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart3"></i> &nbsp; Cart
+                            </a>
+                        </div> 
+                    }
                     <partial name="_LoginPartial" />
                     @*
                     <form class="d-flex">

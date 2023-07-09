@@ -14,6 +14,8 @@ namespace GameShop.Models
         public int Id { get; set; }
         [Range(1, 1000, ErrorMessage = "Please enter a value between 1 and 1000")]
         public int Count { get; set; }
+        [NotMapped]
+        public double Price { get; set; }
 
         public int ProductId { get; set; }
         [ValidateNever]

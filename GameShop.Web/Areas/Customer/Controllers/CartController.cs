@@ -12,6 +12,7 @@ namespace GameShop.Web.Areas.Customer.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         public ShoppingCartVM shoppingCartVM { get; set; }
+        public int OrderTotal { get; set; }
         public CartController(IUnitOfWork unitOfWork)
         {
             _unitOfWork= unitOfWork;
@@ -28,7 +29,25 @@ namespace GameShop.Web.Areas.Customer.Controllers
                     c => c.ApplicationUserId == claim.Value, includeProperties: "Product")
             };
 
-            return View();
+            foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
+            {
+                shoppingCart.Price = GetPriceBasedOnQuantity(shoppingCart.Count,
+                                                             shoppingCart.Product.Price,
+                                                             shoppingCart.Product.Price50,
+                                                             shoppingCart.Product.Price100);
+            }
+
+            return View(shoppingCartVM);
+        }
+
+        private double GetPriceBasedOnQuantity(double quantity, double price, double price50, double price100)
+        {
+            if (quantity <= 50) return price;
+            else
+            {
+                if (quantity <= 100) return price50;
+                else return price100;
+            }
         }
     }
 }

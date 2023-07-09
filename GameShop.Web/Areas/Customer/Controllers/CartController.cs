@@ -42,6 +42,40 @@ namespace GameShop.Web.Areas.Customer.Controllers
             return View(shoppingCartVM);
         }
 
+        public IActionResult Add(int cartId)
+        {
+            var shoppingCart = _unitOfWork.ShoppingCart.GetFirstOrDefault(s => s.Id == cartId);
+            _unitOfWork.ShoppingCart.IncrementCount(shoppingCart, 1);
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Minus(int cartId)
+        {
+            var shoppingCart = _unitOfWork.ShoppingCart.GetFirstOrDefault(s => s.Id == cartId);
+            
+            if(shoppingCart.Count <= 1)
+            {
+                _unitOfWork.ShoppingCart.Remove(shoppingCart);
+                return RedirectToAction(nameof(Index));
+            }
+
+            _unitOfWork.ShoppingCart.DecrementCount(shoppingCart, 1);
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Remove(int cartId)
+        {
+            var shoppingCart = _unitOfWork.ShoppingCart.GetFirstOrDefault(s => s.Id == cartId);
+            _unitOfWork.ShoppingCart.Remove(shoppingCart);
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         private double GetPriceBasedOnQuantity(double quantity, double price, double price50, double price100)
         {
             if (quantity <= 50) return price;

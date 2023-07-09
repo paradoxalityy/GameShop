@@ -35,6 +35,8 @@ namespace GameShop.Web.Areas.Customer.Controllers
                                                              shoppingCart.Product.Price,
                                                              shoppingCart.Product.Price50,
                                                              shoppingCart.Product.Price100);
+
+                shoppingCartVM.CartTotalPrice += (shoppingCart.Price * shoppingCart.Count);
             }
 
             return View(shoppingCartVM);

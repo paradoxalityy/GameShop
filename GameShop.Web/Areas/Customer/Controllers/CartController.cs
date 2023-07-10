@@ -56,15 +56,15 @@ namespace GameShop.Web.Areas.Customer.Controllers
                 OrderHeader = new OrderHeader()
             };
 
-            shoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(
+            var orderUserData = _unitOfWork.ApplicationUser.GetFirstOrDefault(
                 u => u.Id == claim.Value);
 
-            shoppingCartVM.OrderHeader.Name = shoppingCartVM.OrderHeader.ApplicationUser.Name;
-            shoppingCartVM.OrderHeader.PhoneNumber = shoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
-            shoppingCartVM.OrderHeader.StreetAddress = shoppingCartVM.OrderHeader.ApplicationUser.StreetAddress;
-            shoppingCartVM.OrderHeader.City = shoppingCartVM.OrderHeader.ApplicationUser.City;
-            shoppingCartVM.OrderHeader.State = shoppingCartVM.OrderHeader.ApplicationUser.State;
-            shoppingCartVM.OrderHeader.PostalCode = shoppingCartVM.OrderHeader.ApplicationUser.PostalCode;
+            shoppingCartVM.OrderHeader.Name = orderUserData.Name;
+            shoppingCartVM.OrderHeader.PhoneNumber = orderUserData.PhoneNumber;
+            shoppingCartVM.OrderHeader.StreetAddress = orderUserData.StreetAddress;
+            shoppingCartVM.OrderHeader.City = orderUserData.City;
+            shoppingCartVM.OrderHeader.State = orderUserData.State;
+            shoppingCartVM.OrderHeader.PostalCode = orderUserData.PostalCode;
 
             foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
             {

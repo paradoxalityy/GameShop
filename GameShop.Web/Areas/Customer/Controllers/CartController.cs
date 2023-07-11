@@ -1,8 +1,10 @@
 ﻿using GameShop.Data.Repository.IRepository;
 using GameShop.Models;
 using GameShop.Models.ViewModels;
+using GameShop.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Security.Claims;
 
 namespace GameShop.Web.Areas.Customer.Controllers
@@ -12,6 +14,7 @@ namespace GameShop.Web.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        [BindProperty]
         public ShoppingCartVM shoppingCartVM { get; set; }
         public int OrderTotal { get; set; }
         public CartController(IUnitOfWork unitOfWork)
@@ -31,19 +34,12 @@ namespace GameShop.Web.Areas.Customer.Controllers
                 OrderHeader = new OrderHeader()
             };
 
-            foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
-            {
-                shoppingCart.Price = GetPriceBasedOnQuantity(shoppingCart.Count,
-                                                             shoppingCart.Product.Price,
-                                                             shoppingCart.Product.Price50,
-                                                             shoppingCart.Product.Price100);
-
-                shoppingCartVM.OrderHeader.OrderTotal += (shoppingCart.Price * shoppingCart.Count);
-            }
+            CalculateOrderTotalPrice(shoppingCartVM);
 
             return View(shoppingCartVM);
         }
 
+        [HttpGet]
         public IActionResult Summary()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -55,28 +51,61 @@ namespace GameShop.Web.Areas.Customer.Controllers
                     s => s.ApplicationUserId == claim.Value, includeProperties: "Product"),
                 OrderHeader = new OrderHeader()
             };
-
-            var orderUserData = _unitOfWork.ApplicationUser.GetFirstOrDefault(
+             
+            shoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(
                 u => u.Id == claim.Value);
 
-            shoppingCartVM.OrderHeader.Name = orderUserData.Name;
-            shoppingCartVM.OrderHeader.PhoneNumber = orderUserData.PhoneNumber;
-            shoppingCartVM.OrderHeader.StreetAddress = orderUserData.StreetAddress;
-            shoppingCartVM.OrderHeader.City = orderUserData.City;
-            shoppingCartVM.OrderHeader.State = orderUserData.State;
-            shoppingCartVM.OrderHeader.PostalCode = orderUserData.PostalCode;
+            shoppingCartVM.OrderHeader.Name = shoppingCartVM.OrderHeader.ApplicationUser.Name;
+            shoppingCartVM.OrderHeader.PhoneNumber = shoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
+            shoppingCartVM.OrderHeader.StreetAddress = shoppingCartVM.OrderHeader.ApplicationUser.StreetAddress;
+            shoppingCartVM.OrderHeader.City = shoppingCartVM.OrderHeader.ApplicationUser.City;
+            shoppingCartVM.OrderHeader.State = shoppingCartVM.OrderHeader.ApplicationUser.State;
+            shoppingCartVM.OrderHeader.PostalCode = shoppingCartVM.OrderHeader.ApplicationUser.PostalCode;
+
+            CalculateOrderTotalPrice(shoppingCartVM);
+
+            return View(shoppingCartVM);
+        }
+
+        [HttpPost]
+        [ActionName("Summary")]
+        [ValidateAntiForgeryToken]
+        public IActionResult SummaryPOST()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            shoppingCartVM.ShoppingCarts = _unitOfWork.ShoppingCart.GetAll(
+                c => c.ApplicationUserId == claim.Value, includeProperties: "Product");
+
+            shoppingCartVM.OrderHeader.OrderStatus = SD.PaymentStatusPending;
+            shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+
+            shoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
+            shoppingCartVM.OrderHeader.ApplicationUserId = claim.Value;
+
+            CalculateOrderTotalPrice(shoppingCartVM);
+            _unitOfWork.OrderHeader.Add(shoppingCartVM.OrderHeader);
+            _unitOfWork.Save();
 
             foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
             {
-                shoppingCart.Price = GetPriceBasedOnQuantity(shoppingCart.Count,
-                                                             shoppingCart.Product.Price,
-                                                             shoppingCart.Product.Price50,
-                                                             shoppingCart.Product.Price100);
+                var orderDetail = new OrderDetail()
+                {
+                    ProductId = shoppingCart.ProductId,
+                    OrderId = shoppingCartVM.OrderHeader.Id,
+                    Price = shoppingCart.Price,
+                    Count = shoppingCart.Count,
+                };
 
-                shoppingCartVM.OrderHeader.OrderTotal += (shoppingCart.Count * shoppingCart.Price);
-			}
+                _unitOfWork.OrderDetail.Add(orderDetail);
+                _unitOfWork.Save();
+            }
 
-            return View(shoppingCartVM);
+            _unitOfWork.ShoppingCart.RemoveRange(shoppingCartVM.ShoppingCarts);
+            _unitOfWork.Save();
+
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Add(int cartId)
@@ -111,6 +140,19 @@ namespace GameShop.Web.Areas.Customer.Controllers
             _unitOfWork.Save();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private void CalculateOrderTotalPrice(ShoppingCartVM shoppingCartVM)
+        {
+            foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
+            {
+				shoppingCart.Price = GetPriceBasedOnQuantity(shoppingCart.Count,
+															 shoppingCart.Product.Price,
+															 shoppingCart.Product.Price50,
+															 shoppingCart.Product.Price100);
+
+				shoppingCartVM.OrderHeader.OrderTotal += (shoppingCart.Count * shoppingCart.Price);
+			}
         }
 
         private double GetPriceBasedOnQuantity(double quantity, double price, double price50, double price100)

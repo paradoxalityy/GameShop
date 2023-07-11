@@ -69,11 +69,11 @@ namespace GameShop.Web.Areas.Customer.Controllers
             foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
             {
                 shoppingCart.Price = GetPriceBasedOnQuantity(shoppingCart.Count,
-                                                             shoppingCart.Price,
+                                                             shoppingCart.Product.Price,
                                                              shoppingCart.Product.Price50,
                                                              shoppingCart.Product.Price100);
 
-                shoppingCartVM.OrderHeader.OrderTotal += shoppingCart.Price;
+                shoppingCartVM.OrderHeader.OrderTotal += (shoppingCart.Count * shoppingCart.Price);
 			}
 
             return View(shoppingCartVM);

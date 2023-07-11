@@ -5,7 +5,9 @@ using GameShop.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Stripe.Checkout;
 using System.Security.Claims;
+using static System.Net.WebRequestMethods;
 
 namespace GameShop.Web.Areas.Customer.Controllers
 {
@@ -102,11 +104,45 @@ namespace GameShop.Web.Areas.Customer.Controllers
                 _unitOfWork.Save();
             }
 
-            _unitOfWork.ShoppingCart.RemoveRange(shoppingCartVM.ShoppingCarts);
-            _unitOfWork.Save();
+            // Stripe Settings
+            var domain = "https://localhost:7075/";
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string>
+                {
+                    "card"
+                },
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+                SuccessUrl = domain+$"customer/cart/OrderConfirmation?id={shoppingCartVM.OrderHeader.Id}",
+                CancelUrl = domain+$"customer/cart/Index"
+            };
 
-            return RedirectToAction("Index", "Home");
-        }
+            foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(shoppingCart.Price*100), // 100 -> 1.00 (cents)
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = shoppingCart.Product.Name
+                        }
+                    },
+                    Quantity = shoppingCart.Count
+                };
+
+                options.LineItems.Add(sessionLineItem);
+            }
+
+            var service = new SessionService();
+            var session = service.Create(options);
+
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+		}
 
         public IActionResult Add(int cartId)
         {

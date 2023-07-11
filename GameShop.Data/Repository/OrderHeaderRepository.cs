@@ -35,5 +35,12 @@ namespace GameShop.DataAccess.Repository
 				}
 			}
 		}
+
+		public void UpdateStripePaymentID(int id, string sessionId, string paymentIntentId)
+		{
+			var orderToUpdate = _db.OrderHeaders.FirstOrDefault(o => o.Id == id);
+			orderToUpdate.SessionId = sessionId;
+			orderToUpdate.PaymentIntentId = paymentIntentId;
+		}
 	}
 }

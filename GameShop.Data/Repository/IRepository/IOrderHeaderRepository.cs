@@ -12,5 +12,6 @@ namespace GameShop.DataAccess.Repository.IRepository
 	{
 		public void Update(OrderHeader obj);
 		public void UpdateStatus(int orderId, string orderStatus, string? paymentStatus = null);
+		public void UpdateStripePaymentID(int id, string sessionId, string paymentIntentId);
 	}
 }

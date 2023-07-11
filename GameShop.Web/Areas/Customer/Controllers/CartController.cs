@@ -140,9 +140,38 @@ namespace GameShop.Web.Areas.Customer.Controllers
             var service = new SessionService();
             var session = service.Create(options);
 
+            _unitOfWork.OrderHeader.UpdateStripePaymentID(shoppingCartVM.OrderHeader.Id,
+                                                          session.Id,
+                                                          session.PaymentIntentId);
+            _unitOfWork.Save();
+
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
 		}
+
+        [HttpGet]
+        public IActionResult OrderConfirmation(int id)
+        {
+            var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(o => o.Id == id);
+
+            // Checking Stripe Status
+            var service = new SessionService();
+            var session = service.Get(orderHeader.SessionId);
+
+            if (session.PaymentStatus.ToLower() == "paid")
+            {
+                _unitOfWork.OrderHeader.UpdateStatus(id, SD.OrderStatusApproved, paymentStatus: SD.PaymentStatusApproved);
+                _unitOfWork.Save();
+            }
+
+            var shoppingCartsToDelete = _unitOfWork.ShoppingCart.GetAll(
+                c => c.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+
+            _unitOfWork.ShoppingCart.RemoveRange(shoppingCartsToDelete);
+            _unitOfWork.Save();
+
+            return View(id);
+        }
 
         public IActionResult Add(int cartId)
         {

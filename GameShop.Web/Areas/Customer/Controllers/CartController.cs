@@ -80,13 +80,26 @@ namespace GameShop.Web.Areas.Customer.Controllers
             shoppingCartVM.ShoppingCarts = _unitOfWork.ShoppingCart.GetAll(
                 c => c.ApplicationUserId == claim.Value, includeProperties: "Product");
 
-            shoppingCartVM.OrderHeader.OrderStatus = SD.PaymentStatusPending;
-            shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
-
             shoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
             shoppingCartVM.OrderHeader.ApplicationUserId = claim.Value;
 
             CalculateOrderTotalPrice(shoppingCartVM);
+
+            var applicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(
+                u => u.Id == claim.Value);
+
+            if(applicationUser.CompanyId == null)
+            {
+				shoppingCartVM.OrderHeader.OrderStatus = SD.OrderStatusPending;
+				shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+			}
+            else
+            {
+                // Companies are allowed to pay at a later date
+                shoppingCartVM.OrderHeader.OrderStatus = SD.OrderStatusApproved;
+                shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+            }
+
             _unitOfWork.OrderHeader.Add(shoppingCartVM.OrderHeader);
             _unitOfWork.Save();
 
@@ -105,48 +118,55 @@ namespace GameShop.Web.Areas.Customer.Controllers
             }
 
             // Stripe Settings
-            var domain = "https://localhost:7075/";
-            var options = new SessionCreateOptions
+            if(applicationUser.CompanyId.GetValueOrDefault() == 0)
             {
-                PaymentMethodTypes = new List<string>
+                var domain = "https://localhost:7075/";
+                var options = new SessionCreateOptions
                 {
-                    "card"
-                },
-                LineItems = new List<SessionLineItemOptions>(),
-                Mode = "payment",
-                SuccessUrl = domain+$"customer/cart/OrderConfirmation?id={shoppingCartVM.OrderHeader.Id}",
-                CancelUrl = domain+$"customer/cart/Index"
-            };
-
-            foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
-            {
-                var sessionLineItem = new SessionLineItemOptions
-                {
-                    PriceData = new SessionLineItemPriceDataOptions
+                    PaymentMethodTypes = new List<string>
                     {
-                        UnitAmount = (long)(shoppingCart.Price*100), // 100 -> 1.00 (cents)
-                        Currency = "usd",
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
-                        {
-                            Name = shoppingCart.Product.Name
-                        }
+                        "card"
                     },
-                    Quantity = shoppingCart.Count
+                    LineItems = new List<SessionLineItemOptions>(),
+                    Mode = "payment",
+                    SuccessUrl = domain+$"customer/cart/OrderConfirmation?id={shoppingCartVM.OrderHeader.Id}",
+                    CancelUrl = domain+$"customer/cart/Index"
                 };
 
-                options.LineItems.Add(sessionLineItem);
+                foreach (var shoppingCart in shoppingCartVM.ShoppingCarts)
+                {
+                    var sessionLineItem = new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long)(shoppingCart.Price*100), // 100 -> 1.00 (cents)
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = shoppingCart.Product.Name
+                            }
+                        },
+                        Quantity = shoppingCart.Count
+                    };
+
+                    options.LineItems.Add(sessionLineItem);
+                }
+
+                var service = new SessionService();
+                var session = service.Create(options);
+
+                _unitOfWork.OrderHeader.UpdateStripePaymentID(shoppingCartVM.OrderHeader.Id,
+                                                              session.Id,
+                                                              session.PaymentIntentId);
+                _unitOfWork.Save();
+
+                Response.Headers.Add("Location", session.Url);
+                return new StatusCodeResult(303);
             }
-
-            var service = new SessionService();
-            var session = service.Create(options);
-
-            _unitOfWork.OrderHeader.UpdateStripePaymentID(shoppingCartVM.OrderHeader.Id,
-                                                          session.Id,
-                                                          session.PaymentIntentId);
-            _unitOfWork.Save();
-
-            Response.Headers.Add("Location", session.Url);
-            return new StatusCodeResult(303);
+            else
+            {
+                return RedirectToAction(nameof(OrderConfirmation), "Cart", new { id = shoppingCartVM.OrderHeader.Id });
+            }
 		}
 
         [HttpGet]
@@ -154,14 +174,19 @@ namespace GameShop.Web.Areas.Customer.Controllers
         {
             var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(o => o.Id == id);
 
-            // Checking Stripe Status
-            var service = new SessionService();
-            var session = service.Get(orderHeader.SessionId);
-
-            if (session.PaymentStatus.ToLower() == "paid")
+            if(orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
             {
-                _unitOfWork.OrderHeader.UpdateStatus(id, SD.OrderStatusApproved, paymentStatus: SD.PaymentStatusApproved);
-                _unitOfWork.Save();
+                // Checking Stripe Status
+                var service = new SessionService();
+                var session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    _unitOfWork.OrderHeader.UpdateStatus(id,
+                                                         SD.OrderStatusApproved,
+                                                         paymentStatus: SD.PaymentStatusApproved);
+                    _unitOfWork.Save();
+                }
             }
 
             var shoppingCartsToDelete = _unitOfWork.ShoppingCart.GetAll(

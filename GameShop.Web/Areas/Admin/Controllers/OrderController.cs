@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GameShop.Web.Areas.Admin.Controllers
 {
+	[Area("Admin")]
 	public class OrderController : Controller
 	{
 		private readonly IUnitOfWork _unitOfWork;
